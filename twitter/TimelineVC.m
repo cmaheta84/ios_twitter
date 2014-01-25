@@ -82,10 +82,14 @@
         cell = _tweetCell;
         _tweetCell = nil;
     }
+    if([self.tweets isEqual:nil]) {
+        return cell;
+    }
     Tweet *tweet = self.tweets[indexPath.row];
     
     cell.nameLabel.text = [tweet.user objectOrNilForKey:@"name"];
-    cell.idLabel.text = [tweet.user objectOrNilForKey:@"screen_name"];
+    [cell.nameLabel setFont:[UIFont boldSystemFontOfSize:12]];
+    cell.idLabel.text = [@"@" stringByAppendingString:[tweet.user objectOrNilForKey:@"screen_name"]];
     cell.tweetsLabel.text = tweet.text;
     // pin label to top
     CGFloat rowHeight = [self heightForText:tweet.text];
@@ -95,24 +99,37 @@
     timestamp = [timestamp substringFromIndex:4];
     timestamp = [timestamp substringToIndex:6];
     cell.timestampLabel.text = timestamp;
-    NSString *imageUrl = @"http://pbs.twimg.com/profile_images/812112572/me___me_normal.jpg";
-    if(tweet != nil) {
-       imageUrl = [tweet.user objectForKey:@"profile_image_url"];
+    
+    
+    if(tweet.profile_picture == nil) {
+        [self loadImage:indexPath];
     }
-    NSData * data = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: imageUrl]];
-    [cell.imageView setImage:[UIImage imageWithData: data]];
+    else {
+        cell.imageView.image = tweet.profile_picture;
+    }
     cell.imageView.frame = CGRectMake(0, 0, 37, 37);
   
-    /*  dispatch_async(dispatch_get_global_queue(0,0), ^{
+    return cell;
+}
+
+-(void) loadImage:(NSIndexPath *)indexPath
+{
+    Tweet *tweet = self.tweets[indexPath.row];
+    NSString *imageUrl = @"http://pbs.twimg.com/profile_images/812112572/me___me_normal.jpg";
+    if(tweet != nil) {
+        imageUrl = [tweet.user objectForKey:@"profile_image_url"];
+    }
+    dispatch_async(dispatch_get_global_queue(0,0), ^{
         NSData * data = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: imageUrl]];
         if ( data == nil )
             return;
         dispatch_async(dispatch_get_main_queue(), ^{
-             //WARNING: is the cell still using the same data by this point??
-            cell.imageView.image = [UIImage imageWithData: data];
+            //WARNING: is the cell still using the same data by this point??
+            tweet.profile_picture = [UIImage imageWithData:data];
+            [self.tableView reloadData];
         });
-    });*/
-    return cell;
+    });
+
 }
 
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -132,10 +149,10 @@
 
 - (CGFloat)heightForText:(NSString *)bodyText
 {
-    UIFont *cellFont = [UIFont systemFontOfSize:8];
+    UIFont *cellFont = [UIFont systemFontOfSize:12];
     CGSize constraintSize = CGSizeMake(251, MAXFLOAT);
     CGSize labelSize = [bodyText sizeWithFont:cellFont constrainedToSize:constraintSize lineBreakMode:UILineBreakModeWordWrap];
-    CGFloat height = labelSize.height + 50;
+    CGFloat height = labelSize.height + 30;
     //NSLog(@"height=%f", height);
     return height;
 }
