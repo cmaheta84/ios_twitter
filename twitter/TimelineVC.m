@@ -8,13 +8,16 @@
 
 #import "TimelineVC.h"
 #import "TweetCell.h"
+#import "ComposeViewController.h"
 
 @interface TimelineVC ()
 
 @property (nonatomic, strong) NSMutableArray *tweets;
+@property (nonatomic, strong) UIImage *logo;
 
 - (void)onSignOutButton;
 - (void)reload;
+- (void)onCompose;
 @property (strong, nonatomic) IBOutlet TweetCell *tweetCell;
 
 @end
@@ -22,6 +25,7 @@
 @implementation TimelineVC
 @synthesize tweetCell = _tweetCell;
 @synthesize mytableView = _mytableView;
+
 - (id)initWithStyle:(UITableViewStyle)style
 {
     self = [super initWithStyle:style];
@@ -36,8 +40,27 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    if(self.logo == nil) {
+        NSString *blueLogo = @"https://g.twimg.com/Twitter_logo_blue.png";
+        NSData * data = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: blueLogo]];
+        self.logo = [UIImage imageWithData:data];
+        
+    }
+    UIImageView *imageview = [[UIImageView alloc] initWithImage: self.logo];
+    imageview.frame = CGRectMake(0, 0, 40, 40);
+    imageview.contentMode = UIViewContentModeScaleAspectFit;
+    self.navigationItem.titleView.frame = CGRectMake(0, 0, 40, 40);
+    self.navigationItem.titleView = imageview;
     
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Sign Out" style:UIBarButtonItemStylePlain target:self action:@selector(onSignOutButton)];
+    UIButton *myButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [myButton addTarget:self action:@selector(onCompose)
+       forControlEvents:UIControlEventTouchUpInside];
+    myButton.frame = CGRectMake(0, 0, 40, 40);
+    [myButton setBackgroundImage:[UIImage imageNamed:@"twitter-icons.png"] forState:UIControlStateNormal];
+    
+    UIBarButtonItem *composeBtn = [[UIBarButtonItem alloc] initWithCustomView:myButton];
+    self.navigationItem.rightBarButtonItem = composeBtn;
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Sign Out" style:UIBarButtonItemStylePlain target:self action:@selector(onSignOutButton)];
 
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
@@ -219,6 +242,29 @@
 - (void)onSignOutButton {
     [User setCurrentUser:nil];
 }
+- (void)onCompose {
+    ComposeViewController *viewController = [[ComposeViewController alloc] initWithNibName:@"ComposeViewController" bundle:nil];
+    [[TwitterClient instance] currentUserWithSuccess:^(AFHTTPRequestOperation *operation, id response) {
+        NSLog(@"%@", response);
+        NSDictionary *current_user = response;
+        viewController.name = [current_user objectForKey:@"name"];
+        viewController.screen_name = [current_user objectForKey:@"screen_name"];
+        NSString *imageUrl = [current_user objectForKey:@"profile_image_url"];
+        dispatch_async(dispatch_get_global_queue(0,0), ^{
+            NSData * data = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: imageUrl]];
+            if ( data == nil )
+                return;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //WARNING: is the cell still using the same data by this point??
+                viewController.profile_picture = [UIImage imageWithData:data];
+                [self.navigationController pushViewController:viewController animated:YES];
+            });
+            
+        });
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        // Do nothing
+    }];
+}
 
 - (void)reload {
     [[TwitterClient instance] homeTimelineWithCount:20 sinceId:0 maxId:0 success:^(AFHTTPRequestOperation *operation, id response) {
@@ -229,5 +275,6 @@
         // Do nothing
     }];
 }
+
 
 @end
