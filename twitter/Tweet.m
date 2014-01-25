@@ -18,6 +18,10 @@
     return [self.data valueOrNilForKeyPath:@"user"];
 }
 
+- (void) setProfile_picture:(UIImage *)image
+{
+    _profile_picture = image;
+}
 + (NSMutableArray *)tweetsWithArray:(NSArray *)array {
     NSMutableArray *tweets = [[NSMutableArray alloc] initWithCapacity:array.count];
     for (NSDictionary *params in array) {
