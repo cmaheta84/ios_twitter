@@ -79,4 +79,14 @@ static NSString * const kAccessTokenKey = @"kAccessTokenKey";
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
+- (void)tweet:(NSString *)tweetText success:(void (^)(AFHTTPRequestOperation *operation, id response))success failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure {
+    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:@{@"count": @(1)}];
+    NSString *apiPath = [@"1.1/statuses/update.json?status=" stringByAppendingString:tweetText];
+    NSString *extraParams = @"&display_coordinates=false";
+    apiPath = [apiPath stringByAppendingString:extraParams];
+    NSLog(@"%@", apiPath);
+    [self postPath:apiPath parameters:params success:success failure:failure];
+}
+
+
 @end
