@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2885915418943C2A00100B10 /* logoBlue.png in Resources */ = {isa = PBXBuildFile; fileRef = 2885915318943C2A00100B10 /* logoBlue.png */; };
+		288591561894430800100B10 /* twitter-icons.png in Resources */ = {isa = PBXBuildFile; fileRef = 288591551894430800100B10 /* twitter-icons.png */; };
+		2885915A1894465C00100B10 /* ComposeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 288591581894465C00100B10 /* ComposeViewController.m */; };
+		2885915B1894465C00100B10 /* ComposeViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 288591591894465C00100B10 /* ComposeViewController.xib */; };
 		42C55E07181209DE000F9FCF /* TweetCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 42CC89C017B0F03E00B6D34B /* TweetCell.xib */; };
 		42CC892C17AF4C6A00B6D34B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42CC892B17AF4C6A00B6D34B /* Foundation.framework */; };
 		42CC892E17AF4C6A00B6D34B /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42CC892D17AF4C6A00B6D34B /* CoreGraphics.framework */; };
@@ -43,6 +47,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2885915318943C2A00100B10 /* logoBlue.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = logoBlue.png; sourceTree = "<group>"; };
+		288591551894430800100B10 /* twitter-icons.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "twitter-icons.png"; sourceTree = "<group>"; };
+		288591571894465C00100B10 /* ComposeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComposeViewController.h; sourceTree = "<group>"; };
+		288591581894465C00100B10 /* ComposeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ComposeViewController.m; sourceTree = "<group>"; };
+		288591591894465C00100B10 /* ComposeViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ComposeViewController.xib; sourceTree = "<group>"; };
 		42CC892817AF4C6A00B6D34B /* twitter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = twitter.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		42CC892B17AF4C6A00B6D34B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		42CC892D17AF4C6A00B6D34B /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -188,11 +197,16 @@
 		42CC895A17AF525100B6D34B /* View Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				288591551894430800100B10 /* twitter-icons.png */,
+				2885915318943C2A00100B10 /* logoBlue.png */,
 				42CC895B17AF6FBB00B6D34B /* TimelineVC.h */,
 				42CC895C17AF6FBB00B6D34B /* TimelineVC.m */,
 				42CC89A717B0C31900B6D34B /* SignedOutVC.h */,
 				42CC89A817B0C31900B6D34B /* SignedOutVC.m */,
 				42CC89A917B0C31900B6D34B /* SignedOutVC.xib */,
+				288591571894465C00100B10 /* ComposeViewController.h */,
+				288591581894465C00100B10 /* ComposeViewController.m */,
+				288591591894465C00100B10 /* ComposeViewController.xib */,
 			);
 			name = "View Controllers";
 			sourceTree = "<group>";
@@ -325,7 +339,10 @@
 			files = (
 				42CC89AB17B0C31900B6D34B /* SignedOutVC.xib in Resources */,
 				42CC893617AF4C6A00B6D34B /* InfoPlist.strings in Resources */,
+				288591561894430800100B10 /* twitter-icons.png in Resources */,
 				42CC893E17AF4C6B00B6D34B /* Images.xcassets in Resources */,
+				2885915B1894465C00100B10 /* ComposeViewController.xib in Resources */,
+				2885915418943C2A00100B10 /* logoBlue.png in Resources */,
 				42C55E07181209DE000F9FCF /* TweetCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -384,6 +401,7 @@
 				42CC89B117B0C7B800B6D34B /* Tweet.m in Sources */,
 				42CC89B417B0D63C00B6D34B /* RestObject.m in Sources */,
 				42CC895D17AF6FBB00B6D34B /* TimelineVC.m in Sources */,
+				2885915A1894465C00100B10 /* ComposeViewController.m in Sources */,
 				42CC893C17AF4C6B00B6D34B /* AppDelegate.m in Sources */,
 				42CC893817AF4C6B00B6D34B /* main.m in Sources */,
 			);
