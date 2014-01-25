@@ -210,9 +210,9 @@
 			isa = PBXGroup;
 			children = (
 				42CC89AC17B0C7A600B6D34B /* User.h */,
+				42CC89B017B0C7B800B6D34B /* Tweet.m */,
 				42CC89AD17B0C7A600B6D34B /* User.m */,
 				42CC89AF17B0C7B800B6D34B /* Tweet.h */,
-				42CC89B017B0C7B800B6D34B /* Tweet.m */,
 				42CC89B217B0D63C00B6D34B /* RestObject.h */,
 				42CC89B317B0D63C00B6D34B /* RestObject.m */,
 			);
