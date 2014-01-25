@@ -14,6 +14,10 @@
     return [self.data valueOrNilForKeyPath:@"text"];
 }
 
+- (NSDictionary *)user {
+    return [self.data valueOrNilForKeyPath:@"user"];
+}
+
 + (NSMutableArray *)tweetsWithArray:(NSArray *)array {
     NSMutableArray *tweets = [[NSMutableArray alloc] initWithCapacity:array.count];
     for (NSDictionary *params in array) {
