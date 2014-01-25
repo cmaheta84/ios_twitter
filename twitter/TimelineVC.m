@@ -83,18 +83,27 @@
         _tweetCell = nil;
     }
     Tweet *tweet = self.tweets[indexPath.row];
+    
     cell.nameLabel.text = [tweet.user objectOrNilForKey:@"name"];
     cell.idLabel.text = [tweet.user objectOrNilForKey:@"screen_name"];
     cell.tweetsLabel.text = tweet.text;
+    // pin label to top
+    CGFloat rowHeight = [self heightForText:tweet.text];
+    cell.tweetsLabel.frame = CGRectMake(0, 0, 251, rowHeight);
+    
     NSString *timestamp =[tweet valueOrNilForKeyPath:@"created_at"];
     timestamp = [timestamp substringFromIndex:4];
     timestamp = [timestamp substringToIndex:6];
     cell.timestampLabel.text = timestamp;
-    NSString *imageUrl = [tweet.user objectForKey:@"profile_image_url"];
+    NSString *imageUrl = @"http://pbs.twimg.com/profile_images/812112572/me___me_normal.jpg";
+    if(tweet != nil) {
+       imageUrl = [tweet.user objectForKey:@"profile_image_url"];
+    }
     NSData * data = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: imageUrl]];
     [cell.imageView setImage:[UIImage imageWithData: data]];
-    
-  /*  dispatch_async(dispatch_get_global_queue(0,0), ^{
+    cell.imageView.frame = CGRectMake(0, 0, 37, 37);
+  
+    /*  dispatch_async(dispatch_get_global_queue(0,0), ^{
         NSData * data = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: imageUrl]];
         if ( data == nil )
             return;
@@ -108,8 +117,29 @@
 
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return 100;
+    //return 150;
+    if(self.tweets != nil)
+    {
+        Tweet *tweet = self.tweets[indexPath.row];
+        NSString *labelText = tweet.text;
+        return [self heightForText:labelText];
+    } else
+    {
+        NSString *labelText = @"Posting from @apigee's API test console. It's like a command line for the Twitter API! #apitools";
+        return [self heightForText:labelText];
+    }
 }
+
+- (CGFloat)heightForText:(NSString *)bodyText
+{
+    UIFont *cellFont = [UIFont systemFontOfSize:8];
+    CGSize constraintSize = CGSizeMake(251, MAXFLOAT);
+    CGSize labelSize = [bodyText sizeWithFont:cellFont constrainedToSize:constraintSize lineBreakMode:UILineBreakModeWordWrap];
+    CGFloat height = labelSize.height + 50;
+    //NSLog(@"height=%f", height);
+    return height;
+}
+
 /*
 // Override to support conditional editing of the table view.
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
