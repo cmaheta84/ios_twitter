@@ -157,16 +157,21 @@
 
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    //return 150;
+    NSString *defaultText = @"Posting from @apigee's API test console. It's like a command line for the Twitter API! #apitools";
     if(self.tweets != nil)
     {
         Tweet *tweet = self.tweets[indexPath.row];
         NSString *labelText = tweet.text;
-        return [self heightForText:labelText];
+        CGFloat height = [self heightForText:labelText];
+        CGFloat minHeight = [self heightForText:defaultText];
+        
+        if(height < minHeight) {
+            height = minHeight;
+        }
+        return height;
     } else
     {
-        NSString *labelText = @"Posting from @apigee's API test console. It's like a command line for the Twitter API! #apitools";
-        return [self heightForText:labelText];
+        return [self heightForText:defaultText];
     }
 }
 

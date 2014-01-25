@@ -7,6 +7,7 @@
 //
 
 #import "ComposeViewController.h"
+#import "TimelineVC.h"
 
 @interface ComposeViewController ()
 @property (weak, nonatomic) IBOutlet UILabel *nameLabel;
@@ -75,7 +76,7 @@
     NSRange range = NSMakeRange(0,1);
     self.tweetTextView.text = @"";
     [self.tweetTextView scrollRangeToVisible:range];
-    self.tweetTextView.frame = CGRectMake(self.tweetTextView.frame.origin.x, self.tweetTextView.frame.origin.y, self.tweetTextView.frame.size.width, self.tweetTextView.frame.size.height-320);
+    //self.tweetTextView.frame = CGRectMake(self.tweetTextView.frame.origin.x, self.tweetTextView.frame.origin.y, self.tweetTextView.frame.size.width, self.tweetTextView.frame.size.height-320);
     //self.tweetTextView.scrollIndicatorInsets = UIEdgeInsetsMake(0.0, 0.0, 150, 0.0);
     return YES;
 }
@@ -86,16 +87,26 @@
 
 - (void) onCancel
 {
-    
+    TimelineVC *timelineVC = [[TimelineVC alloc] init];
+    [self.navigationController pushViewController:timelineVC animated:YES];
 }
 
 - (void)textViewDidEndEditing:(UITextView *)textView {
-    self.tweetTextView.frame = CGRectMake(self.tweetTextView.frame.origin.x, self.tweetTextView.frame.origin.y, self.view.frame.size.width, self.view.frame.size.height+320);
+    //self.tweetTextView.frame = CGRectMake(self.tweetTextView.frame.origin.x, self.tweetTextView.frame.origin.y, self.view.frame.size.width, self.view.frame.size.height+320);
 }
 
 - (void) onTweet
 {
-    
+    NSString *tweetText = self.tweetTextView.text;
+    tweetText = [tweetText stringByReplacingOccurrencesOfString:@" " withString:@"%20"];
+    tweetText = [tweetText stringByReplacingOccurrencesOfString:@"\n" withString:@"%20"];
+    [[TwitterClient instance] tweet:tweetText success:^(AFHTTPRequestOperation *operation, id response) {
+        NSLog(@"%@", response);
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"%@", error);
+    }];
+    self.tweetTextView.text = @"- What's Happening? ";
+    [self.view endEditing:YES];
 }
 
 @end
