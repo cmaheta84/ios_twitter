@@ -9,5 +9,5 @@
 #import <UIKit/UIKit.h>
 
 @interface TimelineVC : UITableViewController
-
+@property (strong, nonatomic) IBOutlet UITableView *mytableView;
 @end

@@ -7,6 +7,7 @@
 //
 
 #import "TimelineVC.h"
+#import "TweetCell.h"
 
 @interface TimelineVC ()
 
@@ -14,11 +15,13 @@
 
 - (void)onSignOutButton;
 - (void)reload;
+@property (strong, nonatomic) IBOutlet TweetCell *tweetCell;
 
 @end
 
 @implementation TimelineVC
-
+@synthesize tweetCell = _tweetCell;
+@synthesize mytableView = _mytableView;
 - (id)initWithStyle:(UITableViewStyle)style
 {
     self = [super initWithStyle:style];
@@ -63,16 +66,50 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    static NSString *CellIdentifier = @"Cell";
+    //static NSString *CellIdentifier = @"Cell";
 //    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
-    UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
+    //UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
+    //TweetCell *cell = [[TweetCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
 
-    Tweet *tweet = self.tweets[indexPath.row];
-    cell.textLabel.text = tweet.text;
+    //Tweet *tweet = self.tweets[indexPath.row];
+    //cell.textLabel.text = tweet.text;
     
+    //return cell;
+    
+    TweetCell *cell = (TweetCell *)[tableView dequeueReusableCellWithIdentifier:[TweetCell reuseIdentifier]];
+    if (cell == nil) {
+        [[NSBundle mainBundle] loadNibNamed:@"TweetCell" owner:self options:nil];
+        cell = _tweetCell;
+        _tweetCell = nil;
+    }
+    Tweet *tweet = self.tweets[indexPath.row];
+    cell.nameLabel.text = [tweet.user objectOrNilForKey:@"name"];
+    cell.idLabel.text = [tweet.user objectOrNilForKey:@"screen_name"];
+    cell.tweetsLabel.text = tweet.text;
+    NSString *timestamp =[tweet valueOrNilForKeyPath:@"created_at"];
+    timestamp = [timestamp substringFromIndex:4];
+    timestamp = [timestamp substringToIndex:6];
+    cell.timestampLabel.text = timestamp;
+    NSString *imageUrl = [tweet.user objectForKey:@"profile_image_url"];
+    NSData * data = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: imageUrl]];
+    [cell.imageView setImage:[UIImage imageWithData: data]];
+    
+  /*  dispatch_async(dispatch_get_global_queue(0,0), ^{
+        NSData * data = [[NSData alloc] initWithContentsOfURL: [NSURL URLWithString: imageUrl]];
+        if ( data == nil )
+            return;
+        dispatch_async(dispatch_get_main_queue(), ^{
+             //WARNING: is the cell still using the same data by this point??
+            cell.imageView.image = [UIImage imageWithData: data];
+        });
+    });*/
     return cell;
 }
 
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return 100;
+}
 /*
 // Override to support conditional editing of the table view.
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
