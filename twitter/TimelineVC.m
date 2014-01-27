@@ -9,11 +9,15 @@
 #import "TimelineVC.h"
 #import "TweetCell.h"
 #import "ComposeViewController.h"
+#import "TweetViewController.h"
 
 @interface TimelineVC ()
 
 @property (nonatomic, strong) NSMutableArray *tweets;
 @property (nonatomic, strong) UIImage *logo;
+@property (nonatomic, weak) NSIndexPath *recent_row;
+@property (nonatomic, assign) NSUInteger rows_loaded;
+@property (nonatomic, assign) Boolean data_reloaded;
 
 - (void)onSignOutButton;
 - (void)reload;
@@ -31,8 +35,9 @@
     self = [super initWithStyle:style];
     if (self) {
         self.title = @"Twitter";
-        
-        [self reload];
+        dispatch_async(dispatch_get_global_queue(0,0), ^{
+           [self reload];
+        });
     }
     return self;
 }
@@ -62,6 +67,11 @@
     self.navigationItem.rightBarButtonItem = composeBtn;
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Sign Out" style:UIBarButtonItemStylePlain target:self action:@selector(onSignOutButton)];
 
+    if(self.recent_row != nil)
+    {
+        [self.tableView scrollToRowAtIndexPath:self.recent_row
+                                              atScrollPosition:UITableViewScrollPositionTop animated:NO];
+    }
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
  
@@ -84,7 +94,9 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return self.tweets.count;
+    self.rows_loaded = self.tweets.count;
+    self.data_reloaded = NO;
+    return self.tweets.count+1;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -98,13 +110,25 @@
     //cell.textLabel.text = tweet.text;
     
     //return cell;
-    
+
     TweetCell *cell = (TweetCell *)[tableView dequeueReusableCellWithIdentifier:[TweetCell reuseIdentifier]];
     if (cell == nil) {
         [[NSBundle mainBundle] loadNibNamed:@"TweetCell" owner:self options:nil];
         cell = _tweetCell;
         _tweetCell = nil;
     }
+    
+    if(indexPath.row == self.rows_loaded)
+    {
+        cell.tweetsLabel.text = @"Loading...";
+        if(self.rows_loaded !=0)
+        {
+            NSNumber *maxId = [self.tweets[self.tweets.count-1] valueOrNilForKeyPath:@"id"];
+            [self reloadMore:maxId :@"0":YES];
+        }
+        return cell;
+    }
+
     if([self.tweets isEqual:nil]) {
         return cell;
     }
@@ -131,7 +155,6 @@
         cell.imageView.image = tweet.profile_picture;
     }
     cell.imageView.frame = CGRectMake(0, 0, 37, 37);
-  
     return cell;
 }
 
@@ -158,7 +181,7 @@
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NSString *defaultText = @"Posting from @apigee's API test console. It's like a command line for the Twitter API! #apitools";
-    if(self.tweets != nil)
+    if( (self.tweets != nil) && (indexPath.row < self.tweets.count))
     {
         Tweet *tweet = self.tweets[indexPath.row];
         NSString *labelText = tweet.text;
@@ -227,7 +250,17 @@
 #pragma mark - Table view delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    //[tableView deselectRowAtIndexPath:indexPath animated:YES];
+    Tweet *tweet = self.tweets[indexPath.row];
+    TweetViewController *viewController = [[TweetViewController alloc] initWithNibName:@"TweetViewController" bundle:nil];
+    viewController.logo = self.logo;
+    viewController.name = [tweet.user objectOrNilForKey:@"name"];
+    viewController.screen_name = [@"@" stringByAppendingString:[tweet.user objectOrNilForKey:@"screen_name"]];
+    viewController.tweetText = tweet.text;
+    viewController.fav = [tweet valueOrNilForKeyPath:@"favorite_count"];
+    viewController.retweets = [tweet valueOrNilForKeyPath:@"retweet_count"];
+    viewController.profile_picture = tweet.profile_picture;
+    [self.navigationController pushViewController:viewController animated:YES];
 }
 
 /*
@@ -271,13 +304,32 @@
     }];
 }
 
+- (void) reloadMore:(NSNumber *) in_maxid : (NSString *)in_sinceid :(Boolean) reloadView
+{
+    [[TwitterClient instance] homeTimelineWithCount:20 sinceId:in_sinceid maxId:in_maxid success:^(AFHTTPRequestOperation *operation, id response) {
+        NSLog(@"%@", response);
+        NSMutableArray *tweets = [Tweet tweetsWithArray:response];
+        [self.tweets addObjectsFromArray:tweets];
+        if(reloadView == YES)
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.tableView reloadData];
+            });
+        }
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+         NSLog(@"from relaodMore - %@", error);
+    }];
+}
+
 - (void)reload {
-    [[TwitterClient instance] homeTimelineWithCount:20 sinceId:0 maxId:0 success:^(AFHTTPRequestOperation *operation, id response) {
+    [[TwitterClient instance] homeTimelineWithCount:20 sinceId:@"0" maxId:0 success:^(AFHTTPRequestOperation *operation, id response) {
         NSLog(@"%@", response);
         self.tweets = [Tweet tweetsWithArray:response];
-        [self.tableView reloadData];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.tableView reloadData];
+        });
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-        // Do nothing
+        NSLog(@"from reload - %@", error);
     }];
 }
 
